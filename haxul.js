@@ -13,15 +13,15 @@ class Haxul {
         this.globalEnv = global
     }
 
-    eval(exp ,env = this.globalEnv) {
+    eval(exp, env = this.globalEnv) {
         if (isNumber(exp)) return exp;
         if (isString(exp)) return exp.slice(1, -1)
-        if (exp[0] === "+") return this.eval(exp[1]) + this.eval(exp[2])
-        if (exp[0] === "*") return this.eval(exp[1]) * this.eval(exp[2])
+        if (exp[0] === "+") return this.eval(exp[1], env) + this.eval(exp[2], env)
+        if (exp[0] === "*") return this.eval(exp[1], env) * this.eval(exp[2], env)
 
         if (exp[0] === "var") {
             const [_, name, value] = exp
-            return env.define(name, this.eval(value))
+            return env.define(name, this.eval(value, env))
         }
 
         if (isVariableName(exp)) {
@@ -29,7 +29,8 @@ class Haxul {
         }
 
         if (exp[0] === "begin") {
-            return this._evalBlock(exp, env)
+            const blockEnv = new Environment({}, env)
+            return this._evalBlock(exp, blockEnv)
         }
 
         throw "Unimplemented";
@@ -38,7 +39,7 @@ class Haxul {
     _evalBlock(block, env) {
         let result
         const [_tag, ...expressions] = block
-        expressions.forEach( exp => {
+        expressions.forEach(exp => {
             result = this.eval(exp, env)
         })
         return result
@@ -69,7 +70,6 @@ assert.strictEqual(haxul.eval(["var", "isUser", "true"]), true)
 assert.strictEqual(haxul.eval(["var", "z", ["*", 2, 2]]), 4)
 
 // blocks
-
 assert.strictEqual(haxul.eval(
     ["begin",
         ["var", "x", 10],
@@ -77,5 +77,25 @@ assert.strictEqual(haxul.eval(
         ["+", ["*", "x", "y"], 30],
     ]), 230)
 
+assert.strictEqual(haxul.eval(
+    ["begin",
+        ["var", "x", 10],
+           ["begin",
+               ["var", "x", 20],
+                "x"
+           ],
+        "x"
+    ]
+), 10)
+
+assert.strictEqual(haxul.eval(
+    ["begin",
+        ["var", "value", 10],
+        ["var", "result", [ "begin",
+            ["var", "x", ["+", "value", 10]],
+            "x"
+        ]],
+        "result"
+    ]), 20)
 
 console.log("tests passed")

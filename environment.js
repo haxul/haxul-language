@@ -1,9 +1,11 @@
 module.exports = class Environment {
 
     record
+    parent
 
-    constructor(record = {}) {
+    constructor(record = {}, parent = null) {
         this.record = record
+        this.parent = parent
     }
 
     define(name, value) {
@@ -12,9 +14,18 @@ module.exports = class Environment {
     }
 
     lookup(name) {
-        if (!this.record.hasOwnProperty(name)){
+        return this.resolve(name).record[name]
+    }
+
+    resolve(name) {
+        if (this.record.hasOwnProperty(name)) {
+            return this
+        }
+
+        if (this.parent == null) {
             throw new ReferenceError(`Variable "${name}" is not defined`)
         }
-        return this.record[name]
+
+        return this.parent.resolve(name)
     }
 }
