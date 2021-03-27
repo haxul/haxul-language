@@ -63,6 +63,14 @@ class Haxul {
             return this.eval(alternate, env)
         }
 
+        if (exp[0] === "while") {
+            const [_tag, condition, body] =  exp
+            let result
+            while (this.eval(condition, env)) {
+                result = this.eval(body, env)
+            }
+            return result
+        }
         throw "Unimplemented";
     }
 
