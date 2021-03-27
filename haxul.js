@@ -33,8 +33,15 @@ class Haxul {
             return this._evalBlock(exp, blockEnv)
         }
 
+        if (exp[0] === "set") {
+            const [_, name, value] = exp
+            return env.assign(name, this.eval(value, env))
+        }
+
         throw "Unimplemented";
     }
+
+    
 
     _evalBlock(block, env) {
         let result
@@ -98,4 +105,13 @@ assert.strictEqual(haxul.eval(
         "result"
     ]), 20)
 
+
+assert.strictEqual(haxul.eval(
+    ["begin",
+        ["var", "data", 10],
+        ["begin",
+            ["set", "data", 100],
+        ],
+        "data"
+    ]), 100)
 console.log("tests passed")
