@@ -66,8 +66,6 @@ class Haxul {
         throw "Unimplemented";
     }
 
-
-
     _evalBlock(block, env) {
         let result
         const [_tag, ...expressions] = block
