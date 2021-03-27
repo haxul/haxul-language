@@ -1,6 +1,7 @@
 
 const tests = [
-    require("./eval-test")
+    require("./eval-test"),
+    require("./if-test")
     ]
 
 const Haxul = require("../haxul")
