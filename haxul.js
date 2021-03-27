@@ -27,7 +27,21 @@ class Haxul {
         if (isVariableName(exp)) {
             return env.lookup(exp)
         }
+
+        if (exp[0] === "begin") {
+            return this._evalBlock(exp, env)
+        }
+
         throw "Unimplemented";
+    }
+
+    _evalBlock(block, env) {
+        let result
+        const [_tag, ...expressions] = block
+        expressions.forEach( exp => {
+            result = this.eval(exp, env)
+        })
+        return result
     }
 }
 
@@ -53,5 +67,15 @@ assert.strictEqual(haxul.eval("x"), 10)
 assert.strictEqual(haxul.eval("null"), null)
 assert.strictEqual(haxul.eval(["var", "isUser", "true"]), true)
 assert.strictEqual(haxul.eval(["var", "z", ["*", 2, 2]]), 4)
+
+// blocks
+
+assert.strictEqual(haxul.eval(
+    ["begin",
+        ["var", "x", 10],
+        ["var", "y", 20],
+        ["+", ["*", "x", "y"], 30],
+    ]), 230)
+
 
 console.log("tests passed")
